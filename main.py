@@ -5,6 +5,7 @@ import pdfplumber
 import os
 import re
 from dotenv import load_dotenv
+from pdfminer.pdfparser import PDFSyntaxError
 
 
 load_dotenv()
@@ -28,6 +29,64 @@ index_name = 'articles'
 
 templates = Jinja2Templates(directory="templates")
 
+usb_directory = "/Volumes/KINGSTON/Kitap Arşivi"
+
+max_size_limit = 1 * 1024 * 1024  # 1gb
+total_size_processed = 0
+
+def is_valid_pdf(file_path):
+    try:
+        with open(file_path, 'rb') as f:
+            pdfplumber.open(f)
+        return True
+    except PDFSyntaxError:
+        return False
+    except Exception as e:
+        print(f"Error processing file {file_path}: {e}")
+        return False
+
+
+
+# USB'deki PDF dosyalarını işleyip OpenSearch'e ekleyen fonksiyon
+def process_pdf_and_index(file_path):
+    global total_size_processed
+    file_size = os.path.getsize(file_path)
+
+    # 20 GB sınırına ulaşıldıysa işlemi durdur
+    if total_size_processed + file_size > max_size_limit:
+        print("20 GB sınırına ulaşıldı. İşlem durduruluyor.")
+        return False
+
+    if not is_valid_pdf(file_path):
+        print(f"Invalid or corrupted PDF: {file_path}")
+        return True
+
+    with pdfplumber.open(file_path) as pdf:
+        text = ''
+        for page in pdf.pages:
+            text += page.extract_text()
+
+        article = {
+            'title': os.path.basename(file_path),
+            'content': text
+        }
+        es.index(index=index_name, body=article)
+
+        total_size_processed += file_size
+        print(f"İşlenen toplam veri boyutu: {total_size_processed / (1024 * 1024 * 1024):.2f} GB")
+
+    return True
+
+
+def process_pdfs_in_directory(directory):
+    for root, dirs, files in os.walk(directory):
+        for file in files:
+            if file.endswith(".pdf"):
+                file_path = os.path.join(root, file)
+                if not process_pdf_and_index(file_path):
+                    return
+
+process_pdfs_in_directory(usb_directory)
 
 # endpoint for pdf and text upload
 
