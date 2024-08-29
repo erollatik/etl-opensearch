@@ -1,19 +1,30 @@
-# FastAPI OpenSearch PDF Search Application
+# ETL OpenSearch Project
 
-This project is a FastAPI application that allows users to upload and index PDF files, enabling keyword searches within the content of the PDFs. The PDF files are indexed using OpenSearch, and users can search for specific keywords and see the sentences where the keywords appear.
+This project is a FastAPI-based application integrated with OpenSearch for handling PDF uploads and enabling full-text search functionality. The application processes PDF files uploaded by users, indexes their content into OpenSearch, and allows for efficient keyword searches within the documents.
 
 ## Features
 
-- **PDF Upload:** Users can upload PDF files, and their contents are indexed in OpenSearch.
-- **Keyword Search:** Users can search for specific keywords within the PDFs, and the sentences containing those keywords are displayed.
+- **PDF Upload**: Upload PDF files and process them for content extraction.
+- **Full-Text Search**: Perform keyword searches across the indexed PDF content using OpenSearch.
+- **Data Size Limit**: Automatically stops processing when a specified data size limit is reached (e.g., 100 MB).
+- **Error Handling**: Skips invalid or corrupted PDFs and logs errors.
+
+## Prerequisites
+
+- **Python 3.8+**
+- **FastAPI**
+- **OpenSearch**
+- **pdfplumber**
+- **dotenv**
+- **Jinja2** (for templating)
 
 ## Installation
 
 1. **Clone the repository:**
-
    ```bash
-   git clone https://github.com/username/repo-name.git
-   cd repo-name
+   git clone https://github.com/your-username/etl-opensearch.git
+   cd etl-opensearch
+
 
 2. **Install the required Python packages:**
 
